@@ -1,70 +1,174 @@
-# Getting Started with Create React App
+# 리액트 뿌시기!
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 여러개 input 관리하기
 
-## Available Scripts
+```js
+import { useState } from "react";
+import "./app.css";
+import Display from "./Display";
 
-In the project directory, you can run:
+function App() {
+    const [inputs,setInputs] = useState({
+        name:"",
+        school:"",
+    })
 
-### `npm start`
+    const  handleChange = (e)=>{
+        e.preventDefault();
+        setInputs(prevState => ({
+            ...prevState,
+            [e.target.name]:e.target.value
+        }))
+    }
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+  return (
+    <div>
+        <form>
+            <input name='name' type="text" value={inputs.name} onChange={handleChange}/>
+            <input name='school' type="text" value={inputs.school} onChange={handleChange}/>
+            <button>제출</button>
+        </form>
+    </div>
+  );
+}
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+export default App;
 
-### `npm test`
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+## scroll Event 다루기 && useRef()
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```js
+import {useEffect, useRef, useState} from "react";
+import "./app.css";
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+function App() {
+    const [n,setN] = useState(0);
+    const inputRef = useRef();
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+    useEffect(()=>{
+        inputRef.current.focus()
+    },[])
 
-### `npm run eject`
+    const handleScroll = (e)=>{
+        console.log(e.target.clientHeight) // 스크롤이 가려지지 않은 화면 길이
+        console.log(e.target.scrollHeight) // 총 스크롤 길이
+        console.log(e.target.scrollTop) // 현재 스크롤 위치
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+        if(e.target.scrollTop > 500){
+            console.log('over 200!')
+        }
+    }
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+    const handleClick = ()=>{
+        setN(prevState => prevState+1);
+    }
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+    return (
+        <div>
+            <div className='wrap' onScroll={handleScroll}>
+                <div className='inner'>{n}</div>
+            </div>
+            <button onClick={handleClick}>click</button>
+            <input type="text" ref={inputRef}/>
+        </div>
+    );
+}
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+export default App;
 
-## Learn More
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 배열 렌더링하기
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```js
+import { useState} from "react";
+import "./app.css";
 
-### Code Splitting
+function App() {
+    const [n,setN] = useState([
+        {id:1,name:'kong',age:25},
+        {id:2,name:'ja',age:22},
+        {id:3,name:'elic',age:21},
+    ]);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+  return (
+      <div>
+          {n.map(i=><div key={i.id}>{i.name} {i.age}</div>)}
+      </div>
+  );
+}
 
-### Analyzing the Bundle Size
+export default App;
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## useRef()에 데이터 저장하기
 
-### Making a Progressive Web App
+```js
+import {useEffect, useRef, useState} from "react";
+import "./app.css";
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+function App() {
+    const [n,setN] = useState(0);
+    const storeRef = useRef(0);
 
-### Advanced Configuration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+    const handleScroll = (e)=>{
+        
+        storeRef.current = e.target.scrollTop;
+        console.log(storeRef.current)
+    }
 
-### Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+    return (
+        <div>
+            <div className='wrap' onScroll={handleScroll}>
+                <div className='inner'>{n}</div>
+            </div>
+        </div>
+    );
+}
 
-### `npm run build` fails to minify
+export default App;
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+
+## useRef()로 타이머 구현하기
+
+- 컴포넌트의 렌더링에 따라서 단순히만 작동하는거면 useEffect()에서 return 구문을 사용해 clear해주면 된다
+
+```js
+import {useEffect, useRef, useState} from "react";
+import "./app.css";
+
+function App() {
+    const [count,setCount] = useState(0);
+    const [flag,setFlag] = useState(false);
+    const timer = useRef();
+
+    const toggleTimer = ()=>{
+        setFlag(prev=>!prev);
+
+        if(flag){
+            clearInterval(timer.current);
+        }else{
+            timer.current = setInterval(()=>{
+                setCount(prevState => prevState+1);
+            },1000)
+        }
+
+    }
+
+    return (
+        <div className='main'>
+            <div>count : {count}</div>
+            <div>
+                <button onClick={toggleTimer}>toggle</button>
+            </div>
+        </div>
+    );
+}
+
+export default App;
+```
