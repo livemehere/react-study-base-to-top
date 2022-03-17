@@ -4,7 +4,7 @@
 
 ```js
 import { useState } from "react";
-import "./app.css";
+import "./app.scss";
 import Display from "./Display";
 
 function App() {
@@ -41,7 +41,7 @@ export default App;
 
 ```js
 import {useEffect, useRef, useState} from "react";
-import "./app.css";
+import "./app.scss";
 
 function App() {
     const [n,setN] = useState(0);
@@ -84,7 +84,7 @@ export default App;
 
 ```js
 import { useState} from "react";
-import "./app.css";
+import "./app.scss";
 
 function App() {
     const [n,setN] = useState([
@@ -107,7 +107,7 @@ export default App;
 
 ```js
 import {useEffect, useRef, useState} from "react";
-import "./app.css";
+import "./app.scss";
 
 function App() {
     const [n,setN] = useState(0);
@@ -140,7 +140,7 @@ export default App;
 
 ```js
 import {useEffect, useRef, useState} from "react";
-import "./app.css";
+import "./app.scss";
 
 function App() {
     const [count,setCount] = useState(0);
@@ -171,4 +171,100 @@ function App() {
 }
 
 export default App;
+```
+
+## useMemo()로 렌더링 최적화
+
+- 함수의 결과값이 memoized 된다.
+- hah 의 내용이 변할시 함수를 재실행 하여 결과값을 최신화 한다.
+- 함수가 return 하는 값을 비교해서 다를 경우 재실행함
+
+```js
+    const [hah,setHah] = useState(1)
+const timer = useRef();
+
+const heavyWork = (hah) =>{
+    console.log('무거운일...'+hah)
+    return hah;
+}
+const store =  useMemo(()=>heavyWork(hah),[hah]);
+
+
+```
+
+## useReducer()
+
+```js
+import {memo, useCallback, useEffect, useMemo, useReducer, useRef, useState} from "react";
+import "./app.scss";
+
+const initialState = {
+    count:0
+}
+
+function reducer (state,action){
+    switch(action.type){
+        case 'increament':
+            return {...state,count:state.count+1};
+        case 'decreament':
+            return {...state,count:state.count -1};
+        default:
+            return state;
+    }
+
+}
+
+function App() {
+    const [state,dispatch] = useReducer(reducer,initialState);
+
+    const onClick = ()=>{
+        dispatch({type:'increament'});
+    }
+
+    const onDecrease = ()=>{
+        dispatch({type:'decreament'})
+    }
+
+    return (
+        <div className='main'>
+            <p>{state.count}</p>
+            <button onClick={onClick}>click +</button>
+            <button onClick={onDecrease}>click -</button>
+        </div>
+    );
+}
+
+export default App;
+```
+
+## custom Hooks
+
+```js
+import {memo, useCallback, useEffect, useMemo, useReducer, useRef, useState} from "react";
+import "./app.scss";
+
+
+function App() {
+
+    const [name,nameChange] = useInput('');
+
+    return (
+        <div className='main'>
+            <input type="text" value={name} onChange={nameChange}/>
+        </div>
+    );
+}
+
+export default App;
+
+
+function useInput(initialValue){
+    const [value,setValue] = useState(initialValue);
+
+    const onChange = (e)=>{
+        setValue(e.target.value);
+    }
+
+    return [value,onChange];
+}
 ```

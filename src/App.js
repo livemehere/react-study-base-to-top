@@ -1,32 +1,60 @@
-import {useEffect, useRef, useState} from "react";
-import "./app.css";
+import {
+  Link,
+  Route,
+  Routes,
+  useLocation,
+  useParams,
+  Outlet,
+} from "react-router-dom";
 
 function App() {
-    const [count,setCount] = useState(0);
-    const [flag,setFlag] = useState(false);
-    const timer = useRef();
+  return (
+    <Routes>
+      <Route path={"/"} element={<Home />} />
+      <Route path={"/about"} element={<About />}>
+        <Route path={":userid"} element={<div>userID</div>} />
+        <Route path={"kong"} element={<div>Kong</div>} />
+      </Route>
+      <Route path={"/search"} element={<Search />} />
+    </Routes>
+  );
+}
+export default App;
 
-    const toggleTimer = ()=>{
-        setFlag(prev=>!prev);
-
-        if(flag){
-            clearInterval(timer.current);
-        }else{
-            timer.current = setInterval(()=>{
-                setCount(prevState => prevState+1);
-            },1000)
-        }
-
-    }
-
-    return (
-        <div className='main'>
-            <div>count : {count}</div>
-            <div>
-                <button onClick={toggleTimer}>toggle</button>
-            </div>
-        </div>
-    );
+function Home() {
+  return <Layout>HOME</Layout>;
+}
+function About() {
+  // params 읽기
+  const params = useParams();
+  const location = useLocation();
+  console.log(params);
+  console.log(location.search);
+  return (
+    <Layout>
+      <h1>About Base</h1>
+      <Outlet />
+    </Layout>
+  );
 }
 
-export default App;
+function Search() {
+  // query 읽기
+  const location = useLocation();
+  console.log(location.search);
+  return <Layout>Search</Layout>;
+}
+
+function Layout({ children }) {
+  return (
+    <div>
+      <div>
+        <h3>Nav bar</h3>
+        <Link to={"/"}>HOME</Link>
+        <Link to={"/about"}>ABOUT</Link>
+        <Link to={"/search"}>Search</Link>
+      </div>
+      {children}
+    </div>
+  );
+}
